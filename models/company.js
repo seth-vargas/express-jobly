@@ -46,7 +46,11 @@ class Company {
    * Can filter by name, minEmployees, and maxEmployees - all are optional
    * */
 
-  static async findAll(nameLike, minEmployees, maxEmployees) {
+  static async findAll(
+    nameLike = "%%",
+    minEmployees = 0,
+    maxEmployees = 1000000
+  ) {
     console.log("nameLike", nameLike);
     console.log("minEmployees", minEmployees);
     console.log("maxEmployees", maxEmployees);

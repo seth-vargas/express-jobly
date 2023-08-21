@@ -49,7 +49,6 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * Authorization required: none
  */
 
-// FIXME - needs to have more filters
 router.get("/", async function (req, res, next) {
   try {
     // collect query string values
@@ -70,12 +69,12 @@ router.get("/", async function (req, res, next) {
     if (maxEmployees !== undefined) {
       maxEmployees = parseInt(maxEmployees);
     } else {
-      // maxEmployees = 1000000;
+      maxEmployees = 1000000;
 
       // TODO
       // I want to fix this so that the numEmployee number dynamically increases,
       // and does not need to be set to some random const
-      maxEmployees = "MAX(numEmployees)"; // literal string for db to query
+      // maxEmployees = "MAX(numEmployees)"; // literal string for db to query
     }
 
     if (typeof minEmployees != "number") {
@@ -132,7 +131,7 @@ router.get("/:handle", async function (req, res, next) {
  *
  * Returns { handle, name, description, numEmployees, logo_url }
  *
- * Authorization required: login
+ * Authorization required: login + isAdmin
  */
 
 router.patch("/:handle", ensureLoggedIn, async function (req, res, next) {
@@ -152,7 +151,7 @@ router.patch("/:handle", ensureLoggedIn, async function (req, res, next) {
 
 /** DELETE /[handle]  =>  { deleted: handle }
  *
- * Authorization: login
+ * Authorization: login + isAdmin
  */
 
 router.delete("/:handle", ensureLoggedIn, async function (req, res, next) {
