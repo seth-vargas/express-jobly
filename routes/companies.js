@@ -5,7 +5,7 @@
 const jsonschema = require("jsonschema");
 const express = require("express");
 
-const { BadRequestError } = require("../expressError");
+const { BadRequestError, ExpressError } = require("../expressError");
 const { ensureLoggedIn } = require("../middleware/auth");
 const Company = require("../models/company");
 
@@ -13,7 +13,6 @@ const companyNewSchema = require("../schemas/companyNew.json");
 const companyUpdateSchema = require("../schemas/companyUpdate.json");
 
 const router = new express.Router();
-
 
 /** POST / { company } =>  { company }
  *
@@ -28,7 +27,7 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
   try {
     const validator = jsonschema.validate(req.body, companyNewSchema);
     if (!validator.valid) {
-      const errs = validator.errors.map(e => e.stack);
+      const errs = validator.errors.map((e) => e.stack);
       throw new BadRequestError(errs);
     }
 
@@ -50,9 +49,58 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * Authorization required: none
  */
 
+// FIXME - needs to have more filters
 router.get("/", async function (req, res, next) {
   try {
-    const companies = await Company.findAll();
+    // collect query string values
+    let { nameLike, minEmployees, maxEmployees } = req.query;
+
+    if (nameLike !== undefined) {
+      nameLike = `%${nameLike}%`;
+    } else {
+      nameLike = `%%`;
+    }
+
+    if (minEmployees !== undefined) {
+      minEmployees = parseInt(minEmployees);
+    } else {
+      minEmployees = 0;
+    }
+
+    if (maxEmployees !== undefined) {
+      maxEmployees = parseInt(maxEmployees);
+    } else {
+      // maxEmployees = 1000000;
+
+      // TODO
+      // I want to fix this so that the numEmployee number dynamically increases,
+      // and does not need to be set to some random const
+      maxEmployees = "MAX(numEmployees)"; // literal string for db to query
+    }
+
+    if (typeof minEmployees != "number") {
+      // throw error - Must be int
+      throw new ExpressError("minEmployee must be an integer", 500);
+    }
+    if (typeof maxEmployees != "number") {
+      // throw error - Must be int
+      throw new ExpressError("maxEmployee must be an integer", 500);
+    }
+    if (minEmployees > maxEmployees) {
+      // throw error - Min must be less than Max
+      throw new ExpressError(
+        "minEmployee cannot be larger than maxEmployee",
+        500
+      );
+    }
+
+    console.log(nameLike, minEmployees, maxEmployees);
+
+    const companies = await Company.findAll(
+      nameLike,
+      minEmployees,
+      maxEmployees
+    );
     return res.json({ companies });
   } catch (err) {
     return next(err);
@@ -91,7 +139,7 @@ router.patch("/:handle", ensureLoggedIn, async function (req, res, next) {
   try {
     const validator = jsonschema.validate(req.body, companyUpdateSchema);
     if (!validator.valid) {
-      const errs = validator.errors.map(e => e.stack);
+      const errs = validator.errors.map((e) => e.stack);
       throw new BadRequestError(errs);
     }
 
@@ -115,6 +163,5 @@ router.delete("/:handle", ensureLoggedIn, async function (req, res, next) {
     return next(err);
   }
 });
-
 
 module.exports = router;
