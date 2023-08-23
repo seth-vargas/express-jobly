@@ -58,7 +58,6 @@ describe("create", function () {
 });
 
 /************************************** findAll */
-// TODO -- test with filters!
 
 describe("findAll", function () {
   test("works: no filter", async function () {
@@ -100,6 +99,15 @@ describe("get", function () {
       description: "Desc1",
       numEmployees: 1,
       logoUrl: "http://c1.img",
+      jobs: [
+        {
+          company_handle: "c1",
+          equity: "0",
+          id: 1,
+          salary: 80000,
+          title: "DevOps / SRE",
+        },
+      ],
     });
   });
 
