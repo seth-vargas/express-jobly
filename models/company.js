@@ -51,10 +51,6 @@ class Company {
     minEmployees = 0,
     maxEmployees = 1000000
   ) {
-    console.log("nameLike", nameLike);
-    console.log("minEmployees", minEmployees);
-    console.log("maxEmployees", maxEmployees);
-
     const companiesRes = await db.query(
       `SELECT handle,
                   name,
