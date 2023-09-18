@@ -61,7 +61,7 @@ class Job {
       query += ` WHERE ${whereExpressions.join(" AND ")}`;
     }
 
-    query += " ORDER BY title";
+    query += " ORDER BY company_handle";
 
     const jobsResponse = await db.query(query, queryValues);
 
