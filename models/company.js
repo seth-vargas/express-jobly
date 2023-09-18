@@ -43,25 +43,50 @@ class Company {
    *
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    *
-   * Can filter by name, minEmployees, and maxEmployees - all are optional
+   * Can filter by name, minEmployeesEmployees, and maxEmployees - all are optional
    * */
 
-  static async findAll(
-    nameLike = "%%",
-    minEmployees = 0,
-    maxEmployees = 1000000
-  ) {
-    const companiesRes = await db.query(
-      `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
-           FROM companies
-           WHERE name ILIKE $1 AND num_employees > $2 AND num_employees < $3
-           ORDER BY name`,
-      [nameLike, minEmployees, maxEmployees]
-    );
+  static async findAll(filters = {}) {
+    let query = ` SELECT handle,
+                      name,
+                      description,
+                      num_employees AS "numEmployees",
+                      logo_url AS "logoUrl"
+                    FROM companies`;
+
+    let whereExpressions = [];
+    let queryValues = [];
+
+    const { minEmployees, maxEmployees, name } = filters;
+
+    if (minEmployees > maxEmployees) {
+      throw new BadRequestError(
+        "Max employees must be larger than minEmployees"
+      );
+    }
+
+    if (minEmployees !== undefined) {
+      queryValues.push(minEmployees);
+      whereExpressions.push(`num_employees >= $${queryValues.length}`);
+    }
+
+    if (maxEmployees !== undefined) {
+      queryValues.push(maxEmployees);
+      whereExpressions.push(`num_employees <= $${queryValues.length}`);
+    }
+
+    if (name) {
+      queryValues.push(`%${name}%`);
+      whereExpressions.push(`name ILIKE $${queryValues.length}`);
+    }
+
+    if (whereExpressions.length > 0) {
+      query += ` WHERE ${whereExpressions.join(" AND ")}`;
+    }
+
+    query += " ORDER BY name";
+
+    const companiesRes = await db.query(query, queryValues);
     return companiesRes.rows;
   }
 
@@ -88,6 +113,8 @@ class Company {
 
     const company = companyRes.rows[0];
 
+    if (!company) throw new NotFoundError(`Company not found: ${handle}`);
+
     const jobRes = await db.query(
       ` SELECT id, title, salary, equity, company_handle
         FROM jobs
@@ -95,13 +122,9 @@ class Company {
       [handle]
     );
 
-    const jobs = jobRes.rows;
+    company.jobs = jobRes.rows;
 
-    console.log(jobs);
-
-    if (!company) throw new NotFoundError(`No company: ${handle}`);
-
-    return { ...company, jobs };
+    return company;
   }
 
   /** Update company data with `data`.
