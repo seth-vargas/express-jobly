@@ -128,4 +128,26 @@ router.delete(
   }
 );
 
+router.post(
+  "/users/:username/jobs/:id",
+  ensureLoggedIn,
+  ensureIsAdmin,
+  async function (req, res, next) {
+    try {
+      await User.apply(req.params.username, req.params.id);
+      return res.json({ applied: req.params.id });
+    } catch (err) {
+      return next(err);
+    }
+  }
+);
+
+/**
+ *
+ *  TODO -- Change the output of the get-all-info methods and routes for users so those include the a field with a simple list of job IDs the user has applied for:
+ *  { ..., jobs: [ jobId, jobId, ... ] }
+ *
+ *  TODO -- Document this carefully and write tests.
+ */
+
 module.exports = router;

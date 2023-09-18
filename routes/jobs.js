@@ -47,7 +47,9 @@ router.post(
 /** GET /  =>
  *   { jobs: [ { title, salary, equity, company_handle }, ...] }
  *
- * Authorization required: none
+ *   TODO -- Add filtering (title: string, minSalary: integer, hasEquity: boolean)
+ *
+ *  Authorization required: none
  */
 
 router.get("/", async function (req, res, next) {
@@ -64,7 +66,7 @@ router.get("/", async function (req, res, next) {
  *
  *  Job is { title, salary, equity, company_handle }
  *
- * Authorization required: none
+ *  Authorization required: none
  */
 
 router.get("/:id", async function (req, res, next) {
