@@ -104,8 +104,8 @@ describe("get", function () {
           company_handle: "c1",
           equity: "0",
           id: 1,
-          salary: 80000,
-          title: "DevOps / SRE",
+          salary: 100,
+          title: "Job 1",
         },
       ],
     });
