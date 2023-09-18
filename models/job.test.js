@@ -45,14 +45,127 @@ describe("create", function () {
 });
 
 /************************************** findAll */
+// TODO: Write tests for filtering
 
 describe("findAll", function () {
   test("works", async function () {
     let jobs = await Job.findAll();
     expect(jobs).toEqual([
       {
-        title: "DevOps / SRE",
-        salary: 80000,
+        title: "Job 1",
+        salary: 100,
+        equity: "0",
+        company_handle: "c1",
+      },
+      {
+        title: "Job 2",
+        salary: 200,
+        equity: "0.01",
+        company_handle: "c2",
+      },
+      {
+        title: "Job 3",
+        salary: 300,
+        equity: "0.02",
+        company_handle: "c3",
+      },
+    ]);
+  });
+
+  test("works: filter by title", async function () {
+    const filters = {
+      title: "Job 1",
+      minSalary: undefined,
+      hasEquity: undefined,
+    };
+
+    let jobs = await Job.findAll(filters);
+
+    expect(jobs).toEqual([
+      {
+        title: "Job 1",
+        salary: 100,
+        equity: "0",
+        company_handle: "c1",
+      },
+    ]);
+  });
+
+  test("filtering works - minSalary", async function () {
+    const filters = {
+      title: undefined,
+      minSalary: 200,
+      hasEquity: undefined,
+    };
+
+    let jobs = await Job.findAll(filters);
+
+    expect(jobs).toEqual([
+      {
+        title: "Job 2",
+        salary: 200,
+        equity: "0.01",
+        company_handle: "c2",
+      },
+      {
+        title: "Job 3",
+        salary: 300,
+        equity: "0.02",
+        company_handle: "c3",
+      },
+    ]);
+  });
+
+  test("filtering works - hasEquity", async function () {
+    const filters = {
+      title: undefined,
+      minSalary: undefined,
+      hasEquity: true,
+    };
+
+    let jobs = await Job.findAll(filters);
+
+    expect(jobs).toEqual([
+      {
+        title: "Job 2",
+        salary: 200,
+        equity: "0.01",
+        company_handle: "c2",
+      },
+      {
+        title: "Job 3",
+        salary: 300,
+        equity: "0.02",
+        company_handle: "c3",
+      },
+    ]);
+  });
+
+  test("filtering works - all filters, no match", async function () {
+    const filters = {
+      title: "Job 1",
+      minSalary: 1000,
+      hasEquity: true,
+    };
+
+    let jobs = await Job.findAll(filters);
+
+    expect(jobs).toEqual([]);
+  });
+
+  test("filtering works - all filters, with match", async function () {
+    const filters = {
+      title: "Job 1",
+      minSalary: 100,
+      hasEquity: false,
+    };
+
+    let jobs = await Job.findAll(filters);
+
+    expect(jobs).toEqual([
+      {
+        title: "Job 1",
+        salary: 100,
         equity: "0",
         company_handle: "c1",
       },
@@ -67,8 +180,8 @@ describe("get", function () {
     let job = await Job.get(1);
 
     expect(job).toEqual({
-      title: "DevOps / SRE",
-      salary: 80000,
+      title: "Job 1",
+      salary: 100,
       equity: "0",
       company_handle: "c1",
     });
