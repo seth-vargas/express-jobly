@@ -48,13 +48,13 @@ class Job {
     }
 
     if (title) {
-      queryValues.push(title);
-      whereExpressions.push(`title ILIKE %${queryValues.length}%`);
+      queryValues.push(`%${title}%`);
+      whereExpressions.push(`title ILIKE $${queryValues.length}`);
     }
 
     if (hasEquity) {
-      queryValues.push(hasEquity);
-      whereExpressions.push(`equity > 0`);
+      queryValues.push(0);
+      whereExpressions.push(`equity > $${queryValues.length}`);
     }
 
     if (whereExpressions.length > 0) {
