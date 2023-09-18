@@ -34,12 +34,36 @@ class Job {
    *  Returns [{ title, salary, equity, company_handle }, ...]
    */
 
-  static async findAll() {
-    const jobsResponse = await db.query(
-      ` SELECT title, salary, equity, company_handle
-        FROM jobs
-        ORDER BY title`
-    );
+  static async findAll(filters = {}) {
+    let query = `SELECT title, salary, equity, company_handle FROM jobs`;
+
+    let whereExpressions = [];
+    let queryValues = [];
+
+    const { minSalary, title, hasEquity } = filters;
+
+    if (minSalary !== undefined) {
+      queryValues.push(minSalary);
+      whereExpressions.push(`salary >= $${queryValues.length}`);
+    }
+
+    if (title) {
+      queryValues.push(title);
+      whereExpressions.push(`title ILIKE %${queryValues.length}%`);
+    }
+
+    if (hasEquity) {
+      queryValues.push(hasEquity);
+      whereExpressions.push(`equity > 0`);
+    }
+
+    if (whereExpressions.length > 0) {
+      query += ` WHERE ${whereExpressions.join(" AND ")}`;
+    }
+
+    query += " ORDER BY title";
+
+    const jobsResponse = await db.query(query, queryValues);
 
     return jobsResponse.rows;
   }
