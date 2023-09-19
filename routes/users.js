@@ -70,7 +70,6 @@ router.get("/", ensureLoggedIn, ensureIsAdmin, async function (req, res, next) {
  * Authorization required: login
  **/
 
-// router.get("/:username", ensureLoggedIn, async function (req, res, next) {
 router.get("/:username", ensureLoggedIn, async function (req, res, next) {
   try {
     const user = await User.get(req.params.username);
@@ -142,13 +141,5 @@ router.post(
     }
   }
 );
-
-/**
- *
- *  TODO -- Change the output of the get-all-info methods and routes for users so those include the a field with a simple list of job IDs the user has applied for:
- *  { ..., jobs: [ jobId, jobId, ... ] }
- *
- *  TODO -- Document this carefully and write tests.
- */
 
 module.exports = router;
