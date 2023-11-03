@@ -59,29 +59,6 @@ router.get("/", async function (req, res, next) {
     // collect query string values
     let { nameLike, minEmployees, maxEmployees } = req.query;
 
-    if (nameLike !== undefined) {
-      nameLike = `%${nameLike}%`;
-    } else {
-      nameLike = `%%`;
-    }
-
-    if (minEmployees !== undefined) {
-      minEmployees = parseInt(minEmployees);
-    } else {
-      minEmployees = 0;
-    }
-
-    if (maxEmployees !== undefined) {
-      maxEmployees = parseInt(maxEmployees);
-    } else {
-      maxEmployees = 1000000;
-
-      // TODO
-      // I want to fix this so that the numEmployee number dynamically increases,
-      // and does not need to be set to some random const
-      // maxEmployees = "MAX(numEmployees)"; // literal string for db to query
-    }
-
     if (typeof minEmployees != "number") {
       // throw error - Must be int
       throw new ExpressError("minEmployee must be an integer", 500);
