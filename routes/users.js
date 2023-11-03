@@ -89,25 +89,20 @@ router.get("/:username", ensureLoggedIn, async function (req, res, next) {
  * Authorization required: login
  **/
 
-router.patch(
-  "/:username",
-  ensureLoggedIn,
-  ensureIsAdmin,
-  async function (req, res, next) {
-    try {
-      const validator = jsonschema.validate(req.body, userUpdateSchema);
-      if (!validator.valid) {
-        const errs = validator.errors.map((e) => e.stack);
-        throw new BadRequestError(errs);
-      }
-
-      const user = await User.update(req.params.username, req.body);
-      return res.json({ user });
-    } catch (err) {
-      return next(err);
+router.patch("/:username", ensureLoggedIn, async function (req, res, next) {
+  try {
+    const validator = jsonschema.validate(req.body, userUpdateSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map((e) => e.stack);
+      throw new BadRequestError(errs);
     }
+
+    const user = await User.update(req.params.username, req.body);
+    return res.json({ user });
+  } catch (err) {
+    return next(err);
   }
-);
+});
 
 /** DELETE /[username]  =>  { deleted: username }
  *
